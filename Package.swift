@@ -4,10 +4,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "Rectangular",
+    name: "Arrange",
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(name: "Rectangular", targets: ["Rectangular"]),
+        .library(name: "Arrange", targets: ["Arrange"]),
     ],
     dependencies: [
         .package(url: "https://github.com/danielinoa/SwiftPlus.git", branch: "main"),
@@ -16,11 +16,11 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Rectangular", 
+            name: "Arrange",
             dependencies: [
                 "SwiftPlus"
             ]
         ),
-        .testTarget(name: "RectangularTests", dependencies: ["Rectangular"]),
+        .testTarget(name: "ArrangeTests", dependencies: ["Arrange"]),
     ]
 )

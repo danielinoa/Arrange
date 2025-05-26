@@ -16,7 +16,7 @@ public struct PaddingLayout: Layout {
 
     // MARK: - Layout
 
-    public func naturalSize(for items: [Rectangular.LayoutItem]) -> Rectangular.Size {
+    public func naturalSize(for items: [LayoutItem]) -> Size {
         let size = layout.naturalSize(for: items)
         return .init(
             width: size.width + insets.left + insets.right,
@@ -24,7 +24,7 @@ public struct PaddingLayout: Layout {
         )
     }
 
-    public func size(fitting items: [Rectangular.LayoutItem], within proposedSize: Rectangular.Size) -> Rectangular.Size {
+    public func size(fitting items: [LayoutItem], within proposedSize: Size) -> Size {
         let insettedSize = Size(
             width: proposedSize.width - insets.left - insets.right,
             height: proposedSize.height - insets.top - insets.bottom
@@ -37,7 +37,7 @@ public struct PaddingLayout: Layout {
         return size
     }
 
-    public func frames(for items: [Rectangular.LayoutItem], within bounds: Rectangular.Rectangle) -> [Rectangular.Rectangle] {
+    public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {
         let insettedBoundsSize = Size(
             width: bounds.width - insets.left - insets.right,
             height: bounds.height - insets.top - insets.bottom

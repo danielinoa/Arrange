@@ -1,5 +1,5 @@
 import XCTest
-@testable import Rectangular
+@testable import Arrange
 
 final class FrameLayoutTests: XCTestCase {
 

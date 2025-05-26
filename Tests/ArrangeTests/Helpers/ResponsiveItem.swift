@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 7/4/24.
 //
 
-import Rectangular
+import Arrange
 
 struct ResponsiveItem: LayoutItem {
 

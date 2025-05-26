@@ -76,6 +76,8 @@ public struct HStackLayout: Layout {
         // The space that remains as items occupy the proposed size.
         var sharedAvailableWidth = size.width
         
+        // FIXME: Elasticity instead of scalability!
+        
         // Scalability in this context refers to the ability of an item to be resized over a larger range of values.
         let group: [(index: Int, item: any LayoutItem, scalability: Double)] = pairs.map { index, item in
             let shrunkProbingSize = Size(width: .zero, height: size.height)

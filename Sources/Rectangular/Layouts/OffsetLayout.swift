@@ -15,15 +15,15 @@ public struct OffsetLayout: Layout {
         self.y = y
     }
 
-    public func naturalSize(for items: [Rectangular.LayoutItem]) -> Rectangular.Size {
+    public func naturalSize(for items: [LayoutItem]) -> Size {
         layout.naturalSize(for: items)
     }
 
-    public func size(fitting items: [Rectangular.LayoutItem], within: Rectangular.Size) -> Rectangular.Size {
+    public func size(fitting items: [LayoutItem], within: Size) -> Size {
         layout.size(fitting: items, within: within)
     }
 
-    public func frames(for items: [Rectangular.LayoutItem], within bounds: Rectangular.Rectangle) -> [Rectangular.Rectangle] {
+    public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {
         layout
             .frames(for: items, within: bounds)
             .map { rect in
