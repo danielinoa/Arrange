@@ -4,7 +4,7 @@
 
 // TODO: Handle different coordinates systems
 
-var coordinateSystem: CoordinateSystem = .topLeft
+nonisolated(unsafe) var coordinateSystem: CoordinateSystem = .topLeft
 
 enum CoordinateSystem {
 

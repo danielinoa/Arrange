@@ -1,4 +1,5 @@
 {
+  "originHash" : "cd8927b245cb87febb6ebf9e2cce688d731a4d373a1cf4c9758d68f3b910af4d",
   "pins" : [
     {
       "identity" : "swiftplus",
@@ -6,9 +7,9 @@
       "location" : "https://github.com/danielinoa/SwiftPlus.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e6031c7a6c6e3ee6f3444e96bfd76119f8141d03"
+        "revision" : "6ec444659ef9444ae757c2fd20953d44d36fe230"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 1/28/24.
 //
 
-public struct EdgeInsets {
+public struct EdgeInsets: Sendable {
     
     public var top, bottom, left, right: Double
 
@@ -18,6 +18,6 @@ public struct EdgeInsets {
         self.right = right
     }
 
-    public static var zero: EdgeInsets = .init(top: .zero, bottom: .zero, left: .zero, right: .zero)
+    public static let zero: EdgeInsets = .init(top: .zero, bottom: .zero, left: .zero, right: .zero)
 }
 
