@@ -1,9 +1,10 @@
-import XCTest
+import Testing
 @testable import Arrange
 
-final class FrameLayoutTests: XCTestCase {
+final class FrameLayoutTests {
 
-    func test_responsive_item_spans_entire_width_within_a_larger_frame() {
+    @Test
+    func `test responsive item spans entire width within a larger frame`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 20)
         let layout = FrameLayout(width: 30)
@@ -12,11 +13,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedWidth: Double = 30 // This comes from the layout's specified width
         let expectedHeight: Double = 1 // This comes from the item's height
 
-        XCTAssertEqual(size.width, expectedWidth)
-        XCTAssertEqual(size.height, expectedHeight)
+        #expect(size.width == expectedWidth)
+        #expect(size.height == expectedHeight)
     }
 
-    func test_item_height_increases_as_frame_shrinks_item_width() {
+    @Test
+    func `test item height increases as frame shrinks item width`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 20)
         let layout = FrameLayout(width: 10)
@@ -25,11 +27,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedWidth: Double = 10 // This comes from the layout's specified width
         let expectedHeight: Double = 2 // This comes from the item's height
 
-        XCTAssertEqual(size.width, expectedWidth)
-        XCTAssertEqual(size.height, expectedHeight)
+        #expect(size.width == expectedWidth)
+        #expect(size.height == expectedHeight)
     }
 
-    func test_max_width_is_clamped_up_to_bounds_width() {
+    @Test
+    func `test max width is clamped up to bounds width`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 20)
         let layout = FrameLayout(maximumWidth: .infinity)
@@ -37,12 +40,13 @@ final class FrameLayoutTests: XCTestCase {
 
         let expectedWidth: Double = 100 // This comes from the layout clamping the width up to the bounds
         let expectedHeight: Double = 1 // This comes from the item's height
-
-        XCTAssertEqual(size.width, expectedWidth)
-        XCTAssertEqual(size.height, expectedHeight)
+        
+        #expect(size.width == expectedWidth)
+        #expect(size.height == expectedHeight)
     }
 
-    func test_max_width_at_infinity_matches_bounds() {
+    @Test
+    func `test max width at infinity matches bounds`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 40)
         let layout = FrameLayout(maximumWidth: .infinity, maximumHeight: .infinity)
@@ -51,11 +55,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedLayoutWidth: Double = 100
         let expectedLayoutHeight: Double = 100
 
-        XCTAssertEqual(size.width, expectedLayoutWidth)
-        XCTAssertEqual(size.height, expectedLayoutHeight)
+        #expect(size.width == expectedLayoutWidth)
+        #expect(size.height == expectedLayoutHeight)
     }
 
-    func test_overflowing_min_width_is_clamped_up_to_bounds_width() {
+    @Test
+    func `test overflowing min width is clamped up to bounds width`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 20)
         let layout = FrameLayout(minimumWidth: .infinity)
@@ -64,11 +69,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedWidth: Double = 100 // This comes from the layout clamping the width up to the bounds
         let expectedHeight: Double = 1 // This comes from the item's height
 
-        XCTAssertEqual(size.width, expectedWidth)
-        XCTAssertEqual(size.height, expectedHeight)
+        #expect(size.width == expectedWidth)
+        #expect(size.height == expectedHeight)
     }
 
-    func test_item_with_width_larger_than_layout_minwidth_forces_layout_width_to_expand_beyond_minwidth() {
+    @Test
+    func `test item with width larger than layout minwidth forces layout width to expand beyond minwidth`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 40)
         let layout = FrameLayout(minimumWidth: 20)
@@ -77,11 +83,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedLayoutWidth: Double = 40 // Thsi comes from the item's width forcing the layout's width to expand
         let expectedLayoutHeight: Double = 1 // This comes from the item's height
 
-        XCTAssertEqual(size.width, expectedLayoutWidth)
-        XCTAssertEqual(size.height, expectedLayoutHeight)
+        #expect(size.width == expectedLayoutWidth)
+        #expect(size.height == expectedLayoutHeight)
     }
 
-    func test_layout_fixed_size_is_not_influenced_by_item_size() {
+    @Test
+    func `test layout fixed size is not influenced by item size`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 200)
         let layout = FrameLayout(width: 50, height: 50)
@@ -90,11 +97,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedLayoutWidth: Double = 50
         let expectedLayoutHeight: Double = 50
 
-        XCTAssertEqual(size.width, expectedLayoutWidth)
-        XCTAssertEqual(size.height, expectedLayoutHeight)
+        #expect(size.width == expectedLayoutWidth)
+        #expect(size.height == expectedLayoutHeight)
     }
 
-    func test_layout_with_no_arguments_adopts_item_size() {
+    @Test
+    func `test layout with no arguments adopts item size`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 50)
         let layout = FrameLayout()
@@ -103,11 +111,12 @@ final class FrameLayoutTests: XCTestCase {
         let expectedLayoutWidth: Double = 50
         let expectedLayoutHeight: Double = 1
 
-        XCTAssertEqual(size.width, expectedLayoutWidth)
-        XCTAssertEqual(size.height, expectedLayoutHeight)
+        #expect(size.width == expectedLayoutWidth)
+        #expect(size.height == expectedLayoutHeight)
     }
 
-    func test_layout_with_no_arguments_adopts_item_size_clamped_to_bounds() {
+    @Test
+    func `test layout with no arguments adopts item size clamped to bounds`() {
         let bounds = Size(width: 100, height: 100)
         let item = ResponsiveItem(width: 200)
         let layout = FrameLayout()
@@ -116,7 +125,7 @@ final class FrameLayoutTests: XCTestCase {
         let expectedLayoutWidth: Double = 100
         let expectedLayoutHeight: Double = 2
 
-        XCTAssertEqual(size.width, expectedLayoutWidth)
-        XCTAssertEqual(size.height, expectedLayoutHeight)
+        #expect(size.width == expectedLayoutWidth)
+        #expect(size.height == expectedLayoutHeight)
     }
 }
