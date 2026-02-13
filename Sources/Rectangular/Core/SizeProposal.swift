@@ -3,8 +3,8 @@
 //
 
 enum SizeProposal {
-    case size(Size)
-    case collapsed
-    case expanded
-    case unspecified
+  case size(Size)
+  case collapsed
+  case expanded
+  case unspecified
 }

@@ -3,21 +3,20 @@
 //
 
 public struct EdgeInsets: Sendable {
-    
-    public var top, bottom, left, right: Double
 
-    public init(
-        top: Double = .zero,
-        bottom: Double  = .zero,
-        left: Double  = .zero,
-        right: Double  = .zero
-    ) {
-        self.top = top
-        self.bottom = bottom
-        self.left = left
-        self.right = right
-    }
+  public var top, bottom, left, right: Double
 
-    public static let zero: EdgeInsets = .init(top: .zero, bottom: .zero, left: .zero, right: .zero)
+  public init(
+    top: Double = .zero,
+    bottom: Double = .zero,
+    left: Double = .zero,
+    right: Double = .zero
+  ) {
+    self.top = top
+    self.bottom = bottom
+    self.left = left
+    self.right = right
+  }
+
+  public static let zero: EdgeInsets = .init(top: .zero, bottom: .zero, left: .zero, right: .zero)
 }
-

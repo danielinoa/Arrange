@@ -5,5 +5,5 @@
 import Arrange
 
 struct Spacer: LayoutItem {
-    func sizeThatFits(_ size: Size) -> Size { size }
+  func sizeThatFits(_ size: Size) -> Size { size }
 }
