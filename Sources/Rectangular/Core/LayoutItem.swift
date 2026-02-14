@@ -2,6 +2,7 @@
 //  Created by Daniel Inoa on 1/1/24.
 //
 
+@MainActor
 public protocol LayoutItem {
 
   // TODO: Consider using LayoutPriority to prevent collision with another protocol also requiring a `priority: Int`.

@@ -1,6 +1,7 @@
 import Testing
 @testable import Arrange
 
+@MainActor
 final class FrameLayoutTests {
 
   @Test

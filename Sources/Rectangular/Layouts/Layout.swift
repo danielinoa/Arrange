@@ -2,6 +2,7 @@
 //  Created by Daniel Inoa on 1/2/24.
 //
 
+@MainActor
 public protocol Layout {
 
   /// The layout's ideal size, considering its properties and the specified items.
