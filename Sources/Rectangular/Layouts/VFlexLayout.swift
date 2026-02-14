@@ -124,16 +124,13 @@ public struct VFlexLayout: Layout {
     }
   }
 
-  private static func leadingOffset(
-    for size: Size, aligned: HorizontalAlignment, within bounds: Rectangle
-  ) -> Double {
-    let shift: Double
-    switch aligned {
-    case .leading: shift = .zero
-    case .center: shift = (bounds.width - size.width) / 2
-    case .trailing: shift = bounds.width - size.width
+  private static func leadingOffset(for size: Size, aligned: HorizontalAlignment, within bounds: Rectangle) -> Double {
+    let shift: Double = switch aligned {
+    case .leading: .zero
+    case .center: (bounds.width - size.width) / 2
+    case .trailing: bounds.width - size.width
     }
-    return bounds.topY + shift
+    return bounds.leadingX + shift
   }
 }
 
