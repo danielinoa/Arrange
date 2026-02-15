@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 1/28/24.
 //
 
-public struct EdgeInsets: Sendable {
+public struct EdgeInsets: Sendable, Hashable {
 
   public var top, bottom, left, right: Double
 

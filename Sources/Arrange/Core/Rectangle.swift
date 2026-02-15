@@ -51,7 +51,7 @@ public struct Rectangle: Sendable, Hashable {
     self.size = .init(width: width, height: height)
   }
 
-  public static var zero: Rectangle { .init(origin: .zero, size: .zero) }
+  public static let zero: Rectangle = .init(origin: .zero, size: .zero)
 }
 
 extension Rectangle {

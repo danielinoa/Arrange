@@ -12,5 +12,5 @@ public struct Point: Sendable, Hashable {
     self.y = y
   }
 
-  public static var zero: Point { .init(x: .zero, y: .zero) }
+  public static let zero: Point = .init(x: .zero, y: .zero)
 }

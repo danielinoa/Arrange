@@ -12,7 +12,7 @@ public struct Size: Sendable, Hashable {
     self.height = height
   }
 
-  public static var zero: Size { .init(width: .zero, height: .zero) }
+  public static let zero: Size = .init(width: .zero, height: .zero)
 }
 
 extension Size {

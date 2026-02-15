@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 1/1/24.
 //
 
-public struct Alignment: Sendable, Equatable {
+public struct Alignment: Sendable, Hashable {
 
   // MARK: - Constants
 
@@ -32,13 +32,13 @@ public struct Alignment: Sendable, Equatable {
 }
 
 /// The horizontal alignment of items within the stack.
-public enum HorizontalAlignment: Sendable, Equatable {
+public enum HorizontalAlignment: Sendable, Hashable {
   // TODO: Add baseline alignment.
   case leading, center, trailing
 }
 
 /// The vertical alignment of items within the stack.
-public enum VerticalAlignment: Sendable, Equatable {
+public enum VerticalAlignment: Sendable, Hashable {
   // TODO: Add baseline alignment.
   case top, center, bottom
 }
