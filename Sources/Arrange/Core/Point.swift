@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 12/30/23.
 //
 
-public struct Point: Hashable {
+public struct Point: Sendable, Hashable {
 
   public var x: Double
   public var y: Double

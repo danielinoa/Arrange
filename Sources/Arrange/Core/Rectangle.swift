@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 12/30/23.
 //
 
-public struct Rectangle: Hashable {
+public struct Rectangle: Sendable, Hashable {
 
   public var origin: Point
   public var size: Size

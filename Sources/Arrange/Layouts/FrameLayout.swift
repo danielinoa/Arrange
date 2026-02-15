@@ -4,7 +4,7 @@
 
 import SwiftPlus
 
-public struct FrameLayout: Layout {
+public struct FrameLayout: Sendable, Layout {
 
   // TODO: Add idealWidth and idealHeight along with SizeProposal enum (value, .zero, .unspecified, and .infinity)
 

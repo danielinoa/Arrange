@@ -3,7 +3,7 @@
 //
 
 /// A layout that arranges its items along the horizontal axis.
-public struct HStackLayout: Layout {
+public struct HStackLayout: Sendable, Layout {
 
   private typealias Priority = Int
   private typealias SizedItem = (size: Size, item: any LayoutItem)

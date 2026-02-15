@@ -6,7 +6,7 @@
 // TODO: Add gap-spacing for all distributions.
 // TODO: Add tests.
 
-public struct HFlexLayout: Layout {
+public struct HFlexLayout: Sendable, Layout {
 
   public var distribution: Distribution
   public var alignment: VerticalAlignment

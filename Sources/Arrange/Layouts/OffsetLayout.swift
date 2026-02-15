@@ -4,7 +4,7 @@
 
 // TODO: Add tests
 
-public struct OffsetLayout: Layout {
+public struct OffsetLayout: Sendable, Layout {
 
   public var x, y: Double
 

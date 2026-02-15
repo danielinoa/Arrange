@@ -2,7 +2,7 @@
 //  Created by Daniel Inoa on 12/30/23.
 //
 
-public struct Size: Hashable {
+public struct Size: Sendable, Hashable {
 
   public var width: Double
   public var height: Double

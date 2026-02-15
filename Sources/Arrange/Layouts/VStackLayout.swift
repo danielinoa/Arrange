@@ -3,7 +3,7 @@
 //
 
 /// A layout that arranges its items along the vertical axis.
-public struct VStackLayout: Layout {
+public struct VStackLayout: Sendable, Layout {
 
   private typealias Priority = Int
   private typealias SizedItem = (size: Size, item: any LayoutItem)

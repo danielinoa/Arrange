@@ -4,7 +4,7 @@
 
 /// A layout that computes the frames of items within a containing bound where items are arranged horizontally and
 /// wrapped vertically.
-public struct FlowLayout {
+public struct FlowLayout: Sendable {
 
   /// Implementation Notes
   /// --------------------
@@ -148,7 +148,7 @@ public struct FlowLayout {
 
   // MARK: - Types
 
-  public struct Result {
+  public struct Result: Sendable {
 
     /// The height require to fit all items, based on the width of the bounds originally passed in.
     public let fittingHeight: Double
@@ -158,7 +158,7 @@ public struct FlowLayout {
   }
 
   /// The direction items flow within a row.
-  public enum Direction {
+  public enum Direction: Sendable {
 
     /// In this direction items flow from left to right.
     case forward

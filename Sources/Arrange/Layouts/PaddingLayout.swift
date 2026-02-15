@@ -4,7 +4,7 @@
 
 // TODO: Add tests
 
-public struct PaddingLayout: Layout {
+public struct PaddingLayout: Sendable, Layout {
 
   public var insets: EdgeInsets = .zero
 

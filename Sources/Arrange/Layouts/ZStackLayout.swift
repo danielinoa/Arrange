@@ -5,7 +5,7 @@
 // TODO: Add tests
 
 /// A layout that overlays its items, aligning them in both axes.
-public struct ZStackLayout: Layout {
+public struct ZStackLayout: Sendable, Layout {
 
   public var alignment: Alignment
 

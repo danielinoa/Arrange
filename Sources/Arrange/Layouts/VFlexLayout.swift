@@ -6,7 +6,7 @@
 // TODO: Add gap-spacing for all distributions.
 // TODO: Add tests.
 
-public struct VFlexLayout: Layout {
+public struct VFlexLayout: Sendable, Layout {
 
   public var distribution: Distribution
   public var alignment: HorizontalAlignment
