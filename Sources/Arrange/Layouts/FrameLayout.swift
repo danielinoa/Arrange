@@ -4,6 +4,31 @@
 
 import SwiftPlus
 
+/// A layout that proposes a fixed or constrained size for its children, analogous to SwiftUI's `.frame` modifier.
+///
+/// `FrameLayout` defines a region with optional minimum and maximum dimensions. Children are laid out
+/// within that region using a `ZStackLayout` and the specified `alignment`.
+///
+/// ## Sizing Semantics
+///
+/// The behavior intentionally matches SwiftUI's `.frame(minWidth:maxWidth:minHeight:maxHeight:)`:
+///
+/// - **Both min and max set** (`width: N` or `minimumWidth: A, maximumWidth: B`):
+///   The child's size is clamped to the `min...max` range, then clamped to the parent's bounds.
+///
+/// - **`minimumWidth` only** (no max):
+///   The frame expands to at least `minimumWidth`, even if it exceeds the parent's bounds.
+///   This mirrors SwiftUI where `minWidth` is a hard floor that the layout honors unconditionally.
+///
+/// - **`maximumWidth` only** (no min):
+///   The frame is exactly `maximumWidth` (clamped to bounds) — it acts as a **target size**,
+///   not merely a ceiling on the child. The child floats inside the frame region, positioned
+///   by `alignment`. This matches SwiftUI where `.frame(maxWidth: 200)` creates a 200pt-wide
+///   frame regardless of the child's natural width.
+///
+/// - **Neither set**: The child's natural fitting size is used, clamped to bounds.
+///
+/// The same logic applies symmetrically to height.
 public struct FrameLayout: Sendable, Layout {
 
   // TODO: Add idealWidth and idealHeight along with SizeProposal enum (value, .zero, .unspecified, and .infinity)
