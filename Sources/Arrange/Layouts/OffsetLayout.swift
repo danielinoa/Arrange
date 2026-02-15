@@ -19,8 +19,8 @@ public struct OffsetLayout: Sendable, Layout {
     layout.naturalSize(for: items)
   }
 
-  public func size(fitting items: [LayoutItem], within: Size) -> Size {
-    layout.size(fitting: items, within: within)
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    layout.size(fitting: items, within: proposal)
   }
 
   public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {

@@ -25,7 +25,8 @@ public protocol LayoutItem {
   /// The layout item's natural size, considering only properties of the item itself.
   var intrinsicSize: Size { get }
 
-  func sizeThatFits(_ size: Size) -> Size
+  /// Returns the item's preferred size given a proposal.
+  func sizeThatFits(_ proposal: SizeProposal) -> Size
 }
 
 extension LayoutItem {

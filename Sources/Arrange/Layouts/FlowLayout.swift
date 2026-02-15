@@ -190,10 +190,24 @@ extension FlowLayout: Layout {
       .naturalSize(for: items)
   }
 
-  public func size(fitting items: [LayoutItem], within proposal: Size) -> Size {
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let width: Double = switch proposal.width {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.width
+    }
+    let height: Double = switch proposal.height {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.height
+    }
+    let resolved = Size(width: width, height: height)
     let rects = items.map { Rectangle(origin: .zero, size: $0.intrinsicSize) }
-    let layout = layout(of: rects, in: .init(origin: .zero, size: proposal))
-    return .init(width: proposal.width, height: layout.fittingHeight)
+    let layout = layout(of: rects, in: .init(origin: .zero, size: resolved))
+    return .init(width: resolved.width, height: layout.fittingHeight)
   }
 
   public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {

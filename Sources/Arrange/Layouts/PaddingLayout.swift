@@ -24,12 +24,26 @@ public struct PaddingLayout: Sendable, Layout {
     )
   }
 
-  public func size(fitting items: [LayoutItem], within proposedSize: Size) -> Size {
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let width: Double = switch proposal.width {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.width
+    }
+    let height: Double = switch proposal.height {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.height
+    }
+    let proposedSize = Size(width: width, height: height)
     let insettedSize = Size(
       width: proposedSize.width - insets.left - insets.right,
       height: proposedSize.height - insets.top - insets.bottom
     )
-    let fittingSize = layout.size(fitting: items, within: insettedSize)
+    let fittingSize = layout.size(fitting: items, within: .size(insettedSize))
     let size = Size(
       width: fittingSize.width + insets.left + insets.right,
       height: fittingSize.height + insets.top + insets.bottom

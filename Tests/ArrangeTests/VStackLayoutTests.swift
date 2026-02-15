@@ -23,7 +23,7 @@ final class VStackLayoutTests {
   func `test size with one item and with non zero spacing`() {
     struct FixedItem: LayoutItem {
       var intrinsicSize: Size { .square(100) }
-      func sizeThatFits(_ size: Size) -> Size { intrinsicSize }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size { intrinsicSize }
     }
     var layout = VStackLayout()
     layout.spacing = 10
@@ -35,7 +35,7 @@ final class VStackLayoutTests {
 
   @Test
   func `test size with 2 flexible items`() {
-    let bounds = Size.square(100)
+    let bounds = SizeProposal.size(Size.square(100))
     let item1 = Spacer()
     let item2 = Spacer()
     let layout = VStackLayout()
@@ -46,7 +46,7 @@ final class VStackLayoutTests {
 
   @Test
   func `test size with 2 flexible items and spacing`() {
-    let bounds = Size.square(100)
+    let bounds = SizeProposal.size(Size.square(100))
     let item1 = Spacer()
     let item2 = Spacer()
     let layout = VStackLayout.init(spacing: 10)
@@ -58,9 +58,16 @@ final class VStackLayoutTests {
   @Test
   func `test size with 1 fixed item`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 50) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 50)
+      }
     }
-    let bounds = Size.square(100)
+    let bounds = SizeProposal.size(Size.square(100))
     let item1 = FixedItem()
     let layout = VStackLayout()
     let size = layout.size(fitting: [item1], within: bounds)
@@ -71,9 +78,16 @@ final class VStackLayoutTests {
   @Test
   func `test size with 1 fixed item with spacing`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 50) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 50)
+      }
     }
-    let bounds = Size.square(100)
+    let bounds = SizeProposal.size(Size.square(100))
     let item1 = FixedItem()
     let layout = VStackLayout(spacing: 10)
     let size = layout.size(fitting: [item1], within: bounds)
@@ -84,9 +98,16 @@ final class VStackLayoutTests {
   @Test
   func `test size with 2 fixed items and spacing`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 20) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 20)
+      }
     }
-    let bounds = Size.square(100)
+    let bounds = SizeProposal.size(Size.square(100))
     let item1 = FixedItem()
     let item2 = FixedItem()
     let layout = VStackLayout(spacing: 10)
@@ -98,7 +119,7 @@ final class VStackLayoutTests {
   @Test
   func `test frames of 2 fixed items and spacing`() throws {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .square(20) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size { .square(20) }
     }
     let item1 = FixedItem()
     let item2 = FixedItem()
@@ -115,10 +136,29 @@ final class VStackLayoutTests {
   @Test
   func `test frames with fixed and flexible item`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 25) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 25)
+      }
     }
     struct FlexibleItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { size }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let height: Double = switch proposal.height {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return Size(width: width, height: height)
+      }
     }
     let bounds = Rectangle(origin: .zero, size: .square(100))
     let layout = VStackLayout()
@@ -134,10 +174,29 @@ final class VStackLayoutTests {
   @Test
   func `test frames with flexible and fixed item`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 25) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 25)
+      }
     }
     struct FlexibleItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { size }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let height: Double = switch proposal.height {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return Size(width: width, height: height)
+      }
     }
     let bounds = Rectangle(origin: .zero, size: .square(100))
     let layout = VStackLayout()
@@ -153,10 +212,29 @@ final class VStackLayoutTests {
   @Test
   func `test frames with fixed item between flexible items`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: size.width, height: 30) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return .init(width: width, height: 30)
+      }
     }
     struct FlexibleItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { size }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let height: Double = switch proposal.height {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return Size(width: width, height: height)
+      }
     }
     let bounds = Rectangle(origin: .zero, size: .square(100))
     let layout = VStackLayout()
@@ -174,11 +252,23 @@ final class VStackLayoutTests {
   @Test
   func `test frames where flexible item has higher priority than fixed item`() {
     struct FixedItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size { .init(width: 30, height: 30) }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size { .init(width: 30, height: 30) }
     }
     struct FlexibleItem: LayoutItem {
       var priority: Int { 1 }
-      func sizeThatFits(_ size: Size) -> Size { size }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let height: Double = switch proposal.height {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        return Size(width: width, height: height)
+      }
     }
     let bounds = Rectangle(origin: .zero, size: .square(100))
     let layout = VStackLayout()
@@ -197,7 +287,7 @@ final class VStackLayoutTests {
   func `test fixed item overlapped frames with negative spacing`() {
     struct FixedItem: LayoutItem {
       var intrinsicSize: Size { .init(width: 10, height: 10) }
-      func sizeThatFits(_ size: Size) -> Size { intrinsicSize }
+      func sizeThatFits(_ proposal: SizeProposal) -> Size { intrinsicSize }
     }
     let bounds = Rectangle(origin: .zero, size: .square(100))
     let layout = VStackLayout(spacing: -5)
@@ -215,9 +305,19 @@ final class VStackLayoutTests {
   @Test
   func `test flexible item with minimum width is given layout priority over spacer`() {
     struct FlexItem: LayoutItem {
-      func sizeThatFits(_ size: Size) -> Size {
-        let minimumHeight = max(70, size.height)
-        let fittingSize = Size(width: size.width, height: minimumHeight)
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let height: Double = switch proposal.height {
+        case .fixed(let value): value
+        case .collapsed, .unspecified: .zero
+        case .expanded: .infinity
+        }
+        let minimumHeight = max(70, height)
+        let fittingSize = Size(width: width, height: minimumHeight)
         return fittingSize
       }
     }

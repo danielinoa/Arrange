@@ -31,9 +31,16 @@ public struct HFlexLayout: Sendable, Layout {
     return .init(width: totalWidth, height: maxHeight)
   }
 
-  public func size(fitting items: [LayoutItem], within proposal: Size) -> Size {
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let width: Double = switch proposal.width {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.width
+    }
     let fittingHeight = items.map { $0.sizeThatFits(proposal).height }.max() ?? .zero
-    return .init(width: proposal.width, height: fittingHeight)
+    return .init(width: width, height: fittingHeight)
   }
 
   public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {

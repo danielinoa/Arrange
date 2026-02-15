@@ -6,7 +6,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test responsive item spans entire width within a larger frame`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 20)
     let layout = FrameLayout(width: 30)
     let size = layout.size(fitting: [item], within: bounds)
@@ -20,7 +20,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test item height increases as frame shrinks item width`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 20)
     let layout = FrameLayout(width: 10)
     let size = layout.size(fitting: [item], within: bounds)
@@ -34,7 +34,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test max width is clamped up to bounds width`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 20)
     let layout = FrameLayout(maximumWidth: .infinity)
     let size = layout.size(fitting: [item], within: bounds)
@@ -48,7 +48,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test max width at infinity matches bounds`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 40)
     let layout = FrameLayout(maximumWidth: .infinity, maximumHeight: .infinity)
     let size = layout.size(fitting: [item], within: bounds)
@@ -62,7 +62,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test overflowing min width is clamped up to bounds width`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 20)
     let layout = FrameLayout(minimumWidth: .infinity)
     let size = layout.size(fitting: [item], within: bounds)
@@ -78,7 +78,7 @@ final class FrameLayoutTests {
   func
     `test item with width larger than layout minwidth forces layout width to expand beyond minwidth`()
   {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 40)
     let layout = FrameLayout(minimumWidth: 20)
     let size = layout.size(fitting: [item], within: bounds)
@@ -92,7 +92,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test layout fixed size is not influenced by item size`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 200)
     let layout = FrameLayout(width: 50, height: 50)
     let size = layout.size(fitting: [item], within: bounds)
@@ -106,7 +106,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test layout with no arguments adopts item size`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 50)
     let layout = FrameLayout()
     let size = layout.size(fitting: [item], within: bounds)
@@ -120,7 +120,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test layout with no arguments adopts item size clamped to bounds`() {
-    let bounds = Size(width: 100, height: 100)
+    let bounds = SizeProposal.size(width: 100, height: 100)
     let item = ResponsiveItem(width: 200)
     let layout = FrameLayout()
     let size = layout.size(fitting: [item], within: bounds)
@@ -389,7 +389,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size clamps child to min max range when child fits within`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 30)
     let layout = FrameLayout(minimumWidth: 20, maximumWidth: 80)
     let size = layout.size(fitting: [item], within: bounds)
@@ -401,7 +401,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size clamps child up to max when child exceeds range`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 100)
     let layout = FrameLayout(minimumWidth: 20, maximumWidth: 80)
     let size = layout.size(fitting: [item], within: bounds)
@@ -412,7 +412,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size clamps child up to min when child is below range`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 10)
     let layout = FrameLayout(minimumWidth: 20, maximumWidth: 80)
     let size = layout.size(fitting: [item], within: bounds)
@@ -423,7 +423,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size with inverted min max uses min as floor`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 30)
     let layout = FrameLayout(minimumWidth: 80, maximumWidth: 20)
     let size = layout.size(fitting: [item], within: bounds)
@@ -467,7 +467,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size with height only constraint`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 40)
     let layout = FrameLayout(height: 30)
     let size = layout.size(fitting: [item], within: bounds)
@@ -479,7 +479,7 @@ final class FrameLayoutTests {
 
   @Test
   func `test size with fixed width and min max height`() {
-    let bounds = Size(width: 200, height: 200)
+    let bounds = SizeProposal.size(width: 200, height: 200)
     let item = ResponsiveItem(width: 40)
     let layout = FrameLayout(
       minimumWidth: 50, maximumWidth: 50,

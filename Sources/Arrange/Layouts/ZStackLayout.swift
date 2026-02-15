@@ -19,8 +19,8 @@ public struct ZStackLayout: Sendable, Layout {
     return .init(width: maxWidth, height: maxHeight)
   }
 
-  public func size(fitting items: [LayoutItem], within size: Size) -> Size {
-    let fittingSizes = items.map { $0.sizeThatFits(size) }
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    let fittingSizes = items.map { $0.sizeThatFits(proposal) }
     let maxWidth = fittingSizes.map(\.width).max() ?? .zero
     let maxHeight = fittingSizes.map(\.height).max() ?? .zero
     return .init(width: maxWidth, height: maxHeight)
@@ -29,7 +29,7 @@ public struct ZStackLayout: Sendable, Layout {
   public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {
     let frames = items.map { item in
       var frame = Rectangle.zero
-      frame.size = item.sizeThatFits(bounds.size)
+      frame.size = item.sizeThatFits(.size(bounds.size))
       switch alignment {
       case .topLeading:
         frame.leadingX = bounds.leadingX

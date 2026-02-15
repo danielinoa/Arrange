@@ -31,7 +31,7 @@ import SwiftPlus
 /// The same logic applies symmetrically to height.
 public struct FrameLayout: Sendable, Layout {
 
-  // TODO: Add idealWidth and idealHeight along with SizeProposal enum (value, .zero, .unspecified, and .infinity)
+  // TODO: Add idealWidth and idealHeight to leverage SizeProposal.unspecified
 
   private var layout: ZStackLayout
 
@@ -96,7 +96,22 @@ public struct FrameLayout: Sendable, Layout {
     return .init(width: width, height: height)
   }
 
-  public func size(fitting items: [any LayoutItem], within bounds: Size) -> Size {
+  public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let width: Double = switch proposal.width {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.width
+    }
+    let height: Double = switch proposal.height {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.height
+    }
+    let bounds = Size(width: width, height: height)
+
     let minimumWidth = self.minimumWidth == .infinity ? bounds.width : self.minimumWidth
     let maximumWidth = self.maximumWidth == .infinity ? bounds.width : self.maximumWidth
     let minimumHeight = self.minimumHeight == .infinity ? bounds.height : self.minimumHeight
@@ -105,7 +120,7 @@ public struct FrameLayout: Sendable, Layout {
     let childProposalWidth = maximumWidth?.clamped(upTo: bounds.width) ?? bounds.width
     let childProposalHeight = maximumHeight?.clamped(upTo: bounds.height) ?? bounds.height
     let childSize = layout.size(
-      fitting: items, within: .init(width: childProposalWidth, height: childProposalHeight)
+      fitting: items, within: .size(width: childProposalWidth, height: childProposalHeight)
     )
     let preferredWidth: Double =
       if let minimumWidth, let maximumWidth {
@@ -131,7 +146,7 @@ public struct FrameLayout: Sendable, Layout {
   }
 
   public func frames(for items: [any LayoutItem], within bounds: Rectangle) -> [Rectangle] {
-    let constrainedSize = size(fitting: items, within: bounds.size)
+    let constrainedSize = size(fitting: items, within: .size(bounds.size))
     let constrainedBounds = Rectangle(origin: bounds.origin, size: constrainedSize)
     return layout.frames(for: items, within: constrainedBounds)
   }

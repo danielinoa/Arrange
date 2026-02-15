@@ -27,7 +27,21 @@ public struct VStackLayout: Sendable, Layout {
     return .init(width: maxWidth, height: totalHeight)
   }
 
-  public func size(fitting items: [any LayoutItem], within size: Size) -> Size {
+  public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let proposedWidth: Double = switch proposal.width {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.width
+    }
+    let proposedHeight: Double = switch proposal.height {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.height
+    }
+    let size = Size(width: proposedWidth, height: proposedHeight)
     let totalInteritemSpacing = totalInteritemSpacing(for: items)
     let sizes = sizes(for: items, within: size).map(\.size)
     let width = sizes.map(\.width).max() ?? .zero
@@ -81,10 +95,10 @@ public struct VStackLayout: Sendable, Layout {
     // Scalability in this context refers to the ability of an item to be resized over a larger range of values.
     let group: [(index: Int, item: any LayoutItem, scalability: Double)] = pairs.map {
       index, item in
-      let shrunkProbingSize = Size(width: size.width, height: .zero)
-      let expandedProbingSize = size
-      let minimumHeight = item.sizeThatFits(shrunkProbingSize).height
-      let maximumHeight = item.sizeThatFits(expandedProbingSize).height
+      let shrunkProposal = SizeProposal(width: .fixed(size.width), height: .collapsed)
+      let expandedProposal = SizeProposal(width: .fixed(size.width), height: .fixed(size.height))
+      let minimumHeight = item.sizeThatFits(shrunkProposal).height
+      let maximumHeight = item.sizeThatFits(expandedProposal).height
       let scalability = maximumHeight - minimumHeight
       return (index, item, scalability)
     }
@@ -100,8 +114,8 @@ public struct VStackLayout: Sendable, Layout {
       // An equal amount of space for views yet to be added to the size-table.
       let equalAllotmentHeight = sharedAvailableHeight / Double(scaleAscendingGroups.count)
       let group = scaleAscendingGroups.removeFirst()
-      let sizeProposal = Size(width: size.width, height: equalAllotmentHeight)
-      let fittingSize = group.item.sizeThatFits(sizeProposal)
+      let itemProposal = SizeProposal(width: .fixed(size.width), height: .fixed(equalAllotmentHeight))
+      let fittingSize = group.item.sizeThatFits(itemProposal)
       sizeTable[group.index] = (fittingSize, group.item)
       sharedAvailableHeight = max(sharedAvailableHeight - fittingSize.height, .zero)
     }

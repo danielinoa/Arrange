@@ -43,7 +43,7 @@ import Testing
   @Test func `test size fitting subtracts insets from proposal`() {
     let item = ResponsiveItem(width: 40)
     let layout = PaddingLayout(insets: .init(top: 10, bottom: 10, left: 20, right: 20))
-    let size = layout.size(fitting: [item], within: .init(width: 200, height: 200))
+    let size = layout.size(fitting: [item], within: .size(width: 200, height: 200))
     #expect(size.width == 40 + 20 + 20) // child fits naturally + insets
     #expect(size.height == 1 + 10 + 10) // child fits naturally + insets
   }

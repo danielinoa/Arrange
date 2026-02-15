@@ -25,12 +25,19 @@ struct ResponsiveItem: LayoutItem {
     .init(width: width, height: height)
   }
 
-  func sizeThatFits(_ proposal: Size) -> Size {
-    if proposal.width >= width {
+  func sizeThatFits(_ proposal: SizeProposal) -> Size {
+    switch proposal.width {
+    case .collapsed:
+      return .zero
+    case .expanded, .unspecified:
       return intrinsicSize
-    } else {
-      let fittingHeight = area / proposal.width
-      return .init(width: proposal.width, height: fittingHeight)
+    case .fixed(let proposedWidth):
+      if proposedWidth >= width {
+        return intrinsicSize
+      } else {
+        let fittingHeight = area / proposedWidth
+        return .init(width: proposedWidth, height: fittingHeight)
+      }
     }
   }
 }

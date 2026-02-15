@@ -32,9 +32,16 @@ public struct VFlexLayout: Sendable, Layout {
     return .init(width: maxWidth, height: totalHeight)
   }
 
-  public func size(fitting items: [LayoutItem], within proposal: Size) -> Size {
+  public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
+    let natural = naturalSize(for: items)
+    let height: Double = switch proposal.height {
+    case .fixed(let value): value
+    case .collapsed: .zero
+    case .expanded: .infinity
+    case .unspecified: natural.height
+    }
     let fittingWidth = items.map { $0.sizeThatFits(proposal).width }.max() ?? .zero
-    return .init(width: fittingWidth, height: proposal.height)
+    return .init(width: fittingWidth, height: height)
   }
 
   public func frames(for items: [LayoutItem], within bounds: Rectangle) -> [Rectangle] {
