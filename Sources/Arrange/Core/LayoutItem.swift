@@ -2,6 +2,20 @@
 //  Created by Daniel Inoa on 1/1/24.
 //
 
+/// A type that can participate in layout calculations by reporting its size preferences.
+///
+/// This protocol is currently `@MainActor` because its primary conformer (`UIView`) is main-actor-isolated.
+/// This means all conformers and callers must operate on the main actor—even pure-value types with no UI state.
+///
+/// ## Alternatives to consider
+///
+/// - **Remove `@MainActor` from the protocol** and mark `UIView`'s conformance members as `nonisolated`,
+///   using `MainActor.assumeIsolated` internally. This keeps the protocol usable off the main actor but shifts
+///   the isolation proof from compile-time to runtime at the UIKit boundary.
+///
+/// - **Split into two protocols** (`LayoutItem` without isolation, `UILayoutItem: LayoutItem` with `@MainActor`).
+///   Pure-value types conform to `LayoutItem` directly; `UIView` conforms to `UILayoutItem`. Adds a type but
+///   preserves compile-time safety on both sides.
 @MainActor
 public protocol LayoutItem {
 
