@@ -45,7 +45,7 @@ public struct PaddingLayout: Sendable, Layout {
     let frames = layout.frames(
       for: items,
       within: Rectangle(
-        origin: .init(x: insets.left, y: insets.top),
+        origin: .init(x: bounds.origin.x + insets.left, y: bounds.origin.y + insets.top),
         size: insettedBoundsSize
       )
     )
