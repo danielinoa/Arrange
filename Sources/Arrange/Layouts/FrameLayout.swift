@@ -47,27 +47,26 @@ public struct FrameLayout: Sendable, Layout {
   }
 
   public func naturalSize(for items: [any LayoutItem]) -> Size {
-    // TODO: NEEDS REVIEW
-    let fallbackSize = layout.naturalSize(for: items)
+    let childSize = layout.naturalSize(for: items)
     let width: Double =
       if let minimumWidth, let maximumWidth {
-        max(minimumWidth, maximumWidth)
+        childSize.width.clamped(within: minimumWidth...max(minimumWidth, maximumWidth))
       } else if let minimumWidth {
-        minimumWidth
+        max(minimumWidth, childSize.width)
       } else if let maximumWidth {
-        maximumWidth
+        min(maximumWidth, childSize.width)
       } else {
-        fallbackSize.width
+        childSize.width
       }
     let height: Double =
       if let minimumHeight, let maximumHeight {
-        max(minimumHeight, maximumHeight)
+        childSize.height.clamped(within: minimumHeight...max(minimumHeight, maximumHeight))
       } else if let minimumHeight {
-        minimumHeight
+        max(minimumHeight, childSize.height)
       } else if let maximumHeight {
-        maximumHeight
+        min(maximumHeight, childSize.height)
       } else {
-        fallbackSize.height
+        childSize.height
       }
     return .init(width: width, height: height)
   }
@@ -85,11 +84,7 @@ public struct FrameLayout: Sendable, Layout {
     )
     let preferredWidth: Double =
       if let minimumWidth, let maximumWidth {
-        if minimumWidth > maximumWidth {
-          max(minimumWidth, childSize.width.clamped(upTo: maximumWidth))
-        } else {
-          maximumWidth.clamped(upTo: bounds.width)
-        }
+        childSize.width.clamped(within: minimumWidth...max(minimumWidth, maximumWidth)).clamped(upTo: bounds.width)
       } else if let minimumWidth {
         max(minimumWidth, childSize.width)
       } else if let maximumWidth {
@@ -99,11 +94,7 @@ public struct FrameLayout: Sendable, Layout {
       }
     let preferredHeight: Double =
       if let minimumHeight, let maximumHeight {
-        if minimumHeight > maximumHeight {
-          max(minimumHeight, childSize.height.clamped(upTo: maximumHeight))
-        } else {
-          maximumHeight.clamped(upTo: bounds.height)
-        }
+        childSize.height.clamped(within: minimumHeight...max(minimumHeight, maximumHeight)).clamped(upTo: bounds.height)
       } else if let minimumHeight {
         max(minimumHeight, childSize.height)
       } else if let maximumHeight {
@@ -115,6 +106,8 @@ public struct FrameLayout: Sendable, Layout {
   }
 
   public func frames(for items: [any LayoutItem], within bounds: Rectangle) -> [Rectangle] {
-    layout.frames(for: items, within: bounds)  // TODO: NEEDS TO BE RETHOUGHT
+    let constrainedSize = size(fitting: items, within: bounds.size)
+    let constrainedBounds = Rectangle(origin: bounds.origin, size: constrainedSize)
+    return layout.frames(for: items, within: constrainedBounds)
   }
 }
