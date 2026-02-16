@@ -27,17 +27,17 @@ struct ResponsiveItem: LayoutItem {
 
   func sizeThatFits(_ proposal: SizeProposal) -> Size {
     switch proposal.width {
-    case .collapsed:
-      return .zero
-    case .expanded, .unspecified:
-      return intrinsicSize
-    case .fixed(let proposedWidth):
-      if proposedWidth >= width {
+      case .collapsed:
+        return .zero
+      case .expanded, .unspecified:
         return intrinsicSize
-      } else {
-        let fittingHeight = area / proposedWidth
-        return .init(width: proposedWidth, height: fittingHeight)
-      }
+      case .fixed(let proposedWidth):
+        if proposedWidth >= width {
+          return intrinsicSize
+        } else {
+          let fittingHeight = area / proposedWidth
+          return .init(width: proposedWidth, height: fittingHeight)
+        }
     }
   }
 }

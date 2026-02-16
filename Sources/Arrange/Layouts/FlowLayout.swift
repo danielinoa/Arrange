@@ -121,9 +121,9 @@ public struct FlowLayout: Sendable {
   {
     let shift: Double
     switch aligned {
-    case .top: shift = .zero
-    case .center: shift = (row.height - item.height) / 2
-    case .bottom: shift = row.height - item.height
+      case .top: shift = .zero
+      case .center: shift = (row.height - item.height) / 2
+      case .bottom: shift = row.height - item.height
     }
     return row.topOffset + shift
   }
@@ -139,9 +139,9 @@ public struct FlowLayout: Sendable {
     let remainingSpace = bounds.width - (row.totalItemsWidth + gapsWidth)
     let shift: Double
     switch alignment {
-    case .leading: shift = .zero
-    case .center: shift = remainingSpace / 2
-    case .trailing: shift = remainingSpace
+      case .leading: shift = .zero
+      case .center: shift = remainingSpace / 2
+      case .trailing: shift = remainingSpace
     }
     return bounds.leadingX + shift
   }
@@ -193,16 +193,16 @@ extension FlowLayout: Layout {
   public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
     let natural = naturalSize(for: items)
     let width: Double = switch proposal.width {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.width
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.width
     }
     let height: Double = switch proposal.height {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.height
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.height
     }
     let resolved = Size(width: width, height: height)
     let rects = items.map { Rectangle(origin: .zero, size: $0.intrinsicSize) }

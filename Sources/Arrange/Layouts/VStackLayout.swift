@@ -30,16 +30,16 @@ public struct VStackLayout: Sendable, Layout {
   public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
     let natural = naturalSize(for: items)
     let proposedWidth: Double = switch proposal.width {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.width
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.width
     }
     let proposedHeight: Double = switch proposal.height {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.height
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.height
     }
     let size = Size(width: proposedWidth, height: proposedHeight)
     let totalInteritemSpacing = totalInteritemSpacing(for: items)
@@ -127,9 +127,9 @@ public struct VStackLayout: Sendable, Layout {
   ) -> Double {
     let shift: Double
     switch aligned {
-    case .leading: shift = .zero
-    case .center: shift = (bounds.width - size.width) / 2
-    case .trailing: shift = bounds.width - size.width
+      case .leading: shift = .zero
+      case .center: shift = (bounds.width - size.width) / 2
+      case .trailing: shift = bounds.width - size.width
     }
     return bounds.leadingX + shift
   }

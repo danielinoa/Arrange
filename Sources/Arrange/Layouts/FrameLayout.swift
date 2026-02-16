@@ -99,16 +99,16 @@ public struct FrameLayout: Sendable, Layout {
   public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
     let natural = naturalSize(for: items)
     let width: Double = switch proposal.width {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.width
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.width
     }
     let height: Double = switch proposal.height {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.height
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.height
     }
     let bounds = Size(width: width, height: height)
 

@@ -60,9 +60,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 50)
       }
@@ -80,9 +80,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 50)
       }
@@ -100,9 +100,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 20)
       }
@@ -138,9 +138,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 25)
       }
@@ -148,14 +148,14 @@ final class VStackLayoutTests {
     struct FlexibleItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let height: Double = switch proposal.height {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return Size(width: width, height: height)
       }
@@ -176,9 +176,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 25)
       }
@@ -186,14 +186,14 @@ final class VStackLayoutTests {
     struct FlexibleItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let height: Double = switch proposal.height {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return Size(width: width, height: height)
       }
@@ -214,9 +214,9 @@ final class VStackLayoutTests {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return .init(width: width, height: 30)
       }
@@ -224,14 +224,14 @@ final class VStackLayoutTests {
     struct FlexibleItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let height: Double = switch proposal.height {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return Size(width: width, height: height)
       }
@@ -258,14 +258,14 @@ final class VStackLayoutTests {
       var priority: Int { 1 }
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let height: Double = switch proposal.height {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         return Size(width: width, height: height)
       }
@@ -307,14 +307,14 @@ final class VStackLayoutTests {
     struct FlexItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let height: Double = switch proposal.height {
-        case .fixed(let value): value
-        case .collapsed, .unspecified: .zero
-        case .expanded: .infinity
+          case .fixed(let value): value
+          case .collapsed, .unspecified: .zero
+          case .expanded: .infinity
         }
         let minimumHeight = max(70, height)
         let fittingSize = Size(width: width, height: minimumHeight)

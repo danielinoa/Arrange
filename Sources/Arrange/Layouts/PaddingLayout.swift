@@ -27,16 +27,16 @@ public struct PaddingLayout: Sendable, Layout {
   public func size(fitting items: [LayoutItem], within proposal: SizeProposal) -> Size {
     let natural = naturalSize(for: items)
     let width: Double = switch proposal.width {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.width
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.width
     }
     let height: Double = switch proposal.height {
-    case .fixed(let value): value
-    case .collapsed: .zero
-    case .expanded: .infinity
-    case .unspecified: natural.height
+      case .fixed(let value): value
+      case .collapsed: .zero
+      case .expanded: .infinity
+      case .unspecified: natural.height
     }
     let proposedSize = Size(width: width, height: height)
     let insettedSize = Size(
