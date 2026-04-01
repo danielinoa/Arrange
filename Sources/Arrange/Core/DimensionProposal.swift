@@ -21,3 +21,21 @@ public enum DimensionProposal: Sendable, Hashable {
   /// No proposal; the item should use its ideal size.
   case unspecified
 }
+
+extension DimensionProposal {
+
+  /// A finite scalar value implied by this proposal, when one exists.
+  ///
+  /// `.collapsed` resolves to `0`. Finite `.fixed(...)` values resolve to their associated value as-is.
+  /// `.expanded`, `.unspecified`, and non-finite fixed values have no finite value and return `nil`.
+  public var finiteValue: Double? {
+    switch self {
+      case .collapsed:
+        .zero
+      case .fixed(let value):
+        value.isFinite ? value : nil
+      case .expanded, .unspecified:
+        nil
+    }
+  }
+}

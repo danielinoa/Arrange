@@ -25,6 +25,24 @@ import Testing
     #expect(DimensionProposal.unspecified != .collapsed)
   }
 
+  @Test func `test finiteValue resolves collapsed to zero`() {
+    #expect(DimensionProposal.collapsed.finiteValue == 0)
+  }
+
+  @Test func `test finiteValue resolves finite fixed value`() {
+    #expect(DimensionProposal.fixed(42).finiteValue == 42)
+  }
+
+  @Test func `test finiteValue preserves negative fixed value`() {
+    #expect(DimensionProposal.fixed(-5).finiteValue == -5)
+  }
+
+  @Test func `test finiteValue is nil for unbounded proposals`() {
+    #expect(DimensionProposal.expanded.finiteValue == nil)
+    #expect(DimensionProposal.unspecified.finiteValue == nil)
+    #expect(DimensionProposal.fixed(.infinity).finiteValue == nil)
+  }
+
   // MARK: - Equatable
 
   @Test func `test equality between identical cases`() {

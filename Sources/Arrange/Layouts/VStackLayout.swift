@@ -6,8 +6,10 @@
 public struct VStackLayout: Sendable, Layout {
 
   private typealias Priority = Int
+  private typealias ItemIndex = Int
   private typealias SizedItem = (size: Size, item: any LayoutItem)
-  private typealias IndexedItem = (index: Int, item: any LayoutItem)
+  private typealias IndexedItem = (index: ItemIndex, item: any LayoutItem)
+  private typealias SizedItemsByIndex = [ItemIndex: SizedItem]
 
   /// The vertical distance between adjacent items within the stack.
   public var spacing: Double
@@ -28,22 +30,8 @@ public struct VStackLayout: Sendable, Layout {
   }
 
   public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
-    let natural = naturalSize(for: items)
-    let proposedWidth: Double = switch proposal.width {
-      case .fixed(let value): value
-      case .collapsed: .zero
-      case .expanded: .infinity
-      case .unspecified: natural.width
-    }
-    let proposedHeight: Double = switch proposal.height {
-      case .fixed(let value): value
-      case .collapsed: .zero
-      case .expanded: .infinity
-      case .unspecified: natural.height
-    }
-    let size = Size(width: proposedWidth, height: proposedHeight)
     let totalInteritemSpacing = totalInteritemSpacing(for: items)
-    let sizes = sizes(for: items, within: size).map(\.size)
+    let sizes = sizes(for: items, within: proposal).map(\.size)
     let width = sizes.map(\.width).max() ?? .zero
     let height = totalInteritemSpacing + sizes.map(\.height).reduce(.zero, +)
     return .init(width: width, height: height)
@@ -51,7 +39,7 @@ public struct VStackLayout: Sendable, Layout {
 
   public func frames(for items: [any LayoutItem], within bounds: Rectangle) -> [Rectangle] {
     var topOffset = bounds.topY
-    let itemSizePairs = sizes(for: items, within: bounds.size)
+    let itemSizePairs = sizes(for: items, within: .size(bounds.size))
     let frames = itemSizePairs.map { pair in
       let x = Self.leadingOffset(for: pair.size, aligned: alignment, within: bounds)
       let y = topOffset
@@ -65,18 +53,28 @@ public struct VStackLayout: Sendable, Layout {
   /// Returns the array of items with their corresponding ideal size, in the same order they were passed in.
   /// - note: The size of any particular item is dependent on the specified bounding size and the item's own layout
   /// priority relative to its neighboring items.
-  private func sizes(for items: [any LayoutItem], within size: Size) -> [SizedItem] {
+  /// - note: The height-sharing path only runs when `proposal.height.finiteValue` exists. Otherwise the height
+  ///         proposal is treated as unbounded and each child is measured directly with the original proposal.
+  /// - note: Negative finite heights are clamped to zero before being used as distributable sibling space.
+  private func sizes(for items: [any LayoutItem], within proposal: SizeProposal) -> [SizedItem] {
+    guard let availableHeight = proposal.height.finiteValue else {
+      return items.map { ($0.sizeThatFits(proposal), $0) }
+    }
+
     let pairs: [IndexedItem] = items.enumerated().map { ($0, $1) }
-    var availableHeight = size.height - totalInteritemSpacing(for: items)
-    var sizeTable: [Int: SizedItem] = [:]
+    var remainingHeight = remainingSpace(
+      afterConsuming: totalInteritemSpacing(for: items),
+      from: distributableHeight(from: availableHeight)
+    )
+    var sizeTable: SizedItemsByIndex = [:]
     let priorityGroups: [Priority: [VStackLayout.IndexedItem]] = Dictionary(
       grouping: pairs, by: \.item.priority)
-    for index in priorityGroups.keys.sorted(by: >) {
-      let group = priorityGroups[index]!
-      let availableSize = Size(width: size.width, height: availableHeight)
-      let (groupSizeTable, remainingHeight) = fittingSizes(for: group, within: availableSize)
+    for priority in priorityGroups.keys.sorted(by: >) {
+      let group = priorityGroups[priority]!
+      let availableProposal = SizeProposal(width: proposal.width, height: .fixed(remainingHeight))
+      let (groupSizeTable, unusedHeight) = fittingSizes(for: group, within: availableProposal)
       sizeTable.merge(groupSizeTable) { current, new in current }  // No duplicate values are expected.
-      availableHeight = remainingHeight
+      remainingHeight = unusedHeight
     }
     return
       sizeTable
@@ -85,18 +83,19 @@ public struct VStackLayout: Sendable, Layout {
   }
 
   private func fittingSizes(
-    for pairs: [IndexedItem], within size: Size
-  ) -> (sizeTable: [Priority: SizedItem], remainingHeight: Double) {
-    var sizeTable: [Priority: SizedItem] = .init()
+    for pairs: [IndexedItem], within proposal: SizeProposal
+  ) -> (sizeTable: SizedItemsByIndex, remainingHeight: Double) {
+    var sizeTable: SizedItemsByIndex = .init()
 
-    // The space that remains as items occupy the proposed size.
-    var sharedAvailableHeight = size.height
+    // The amount of height this priority group is allowed to divide among its remaining siblings.
+    let availableHeight = distributableHeight(from: proposal.height.finiteValue ?? .zero)
+    var sharedAvailableHeight = availableHeight
 
     // Scalability in this context refers to the ability of an item to be resized over a larger range of values.
     let group: [(index: Int, item: any LayoutItem, scalability: Double)] = pairs.map {
       index, item in
-      let shrunkProposal = SizeProposal(width: .fixed(size.width), height: .collapsed)
-      let expandedProposal = SizeProposal(width: .fixed(size.width), height: .fixed(size.height))
+      let shrunkProposal = SizeProposal(width: proposal.width, height: .collapsed)
+      let expandedProposal = SizeProposal(width: proposal.width, height: .fixed(availableHeight))
       let minimumHeight = item.sizeThatFits(shrunkProposal).height
       let maximumHeight = item.sizeThatFits(expandedProposal).height
       let scalability = maximumHeight - minimumHeight
@@ -104,7 +103,12 @@ public struct VStackLayout: Sendable, Layout {
     }
 
     // Least scalable item first.
-    var scaleAscendingGroups = group.sorted { $0.scalability < $1.scalability }
+    var scaleAscendingGroups = group.sorted {
+      if $0.scalability == $1.scalability {
+        return $0.index < $1.index
+      }
+      return $0.scalability < $1.scalability
+    }
 
     // When calculating sizes all views start with an equal amount space within the "shared available space".
     // Any remaining space unused by a view is then returned to the "shared available space" for other views to use.
@@ -114,10 +118,10 @@ public struct VStackLayout: Sendable, Layout {
       // An equal amount of space for views yet to be added to the size-table.
       let equalAllotmentHeight = sharedAvailableHeight / Double(scaleAscendingGroups.count)
       let group = scaleAscendingGroups.removeFirst()
-      let itemProposal = SizeProposal(width: .fixed(size.width), height: .fixed(equalAllotmentHeight))
+      let itemProposal = SizeProposal(width: proposal.width, height: .fixed(equalAllotmentHeight))
       let fittingSize = group.item.sizeThatFits(itemProposal)
       sizeTable[group.index] = (fittingSize, group.item)
-      sharedAvailableHeight = max(sharedAvailableHeight - fittingSize.height, .zero)
+      sharedAvailableHeight = remainingSpace(afterConsuming: fittingSize.height, from: sharedAvailableHeight)
     }
     return (sizeTable, sharedAvailableHeight)
   }
@@ -136,5 +140,22 @@ public struct VStackLayout: Sendable, Layout {
 
   private func totalInteritemSpacing(for items: [any LayoutItem]) -> Double {
     !items.isEmpty ? spacing * Double(items.count - 1) : .zero
+  }
+
+  /// Converts a finite proposed height into height that can actually be distributed among siblings.
+  ///
+  /// Negative fixed heights are treated as zero during stack allocation.
+  private func distributableHeight(from finiteHeight: Double) -> Double {
+    max(finiteHeight, .zero)
+  }
+
+  /// Subtracts consumed height from a finite budget while keeping the result in a safe range.
+  ///
+  /// This prevents negative remaining space and collapses non-finite consumption to zero remaining height,
+  /// which avoids propagating `nan` through later sibling proposals.
+  private func remainingSpace(afterConsuming consumed: Double, from available: Double) -> Double {
+    guard available.isFinite else { return available }
+    guard consumed.isFinite else { return .zero }
+    return max(available - max(consumed, .zero), .zero)
   }
 }

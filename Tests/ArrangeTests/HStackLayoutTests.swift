@@ -56,6 +56,68 @@ final class HStackLayoutTests {
   }
 
   @Test
+  func `test size with negative fixed width proposal clamps distributable width to zero`() {
+    let proposal = SizeProposal(width: .fixed(-5), height: .fixed(20))
+    let layout = HStackLayout()
+    let size = layout.size(fitting: [Spacer()], within: proposal)
+    #expect(size == .init(width: 0, height: 20))
+  }
+
+  @Test
+  func `test size with unspecified proposal preserves unspecified semantics`() {
+    struct ProposalAwareItem: LayoutItem {
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 80
+          case .unspecified: 40
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 60
+          case .unspecified: 30
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let layout = HStackLayout()
+    let size = layout.size(fitting: [ProposalAwareItem()], within: .unspecified)
+    #expect(size == .init(width: 40, height: 30))
+  }
+
+  @Test
+  func `test size with expanded proposal preserves expanded semantics`() {
+    struct ProposalAwareItem: LayoutItem {
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value): value.isInfinite ? 500 : value
+          case .collapsed: .zero
+          case .expanded: 50
+          case .unspecified: 25
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value): value.isInfinite ? 200 : value
+          case .collapsed: .zero
+          case .expanded: 20
+          case .unspecified: 10
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let layout = HStackLayout()
+    let size = layout.size(fitting: [ProposalAwareItem()], within: .expanded)
+    #expect(size == .init(width: 50, height: 20))
+  }
+
+  @Test
   func `test size with 1 fixed item`() {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
@@ -300,6 +362,19 @@ final class HStackLayoutTests {
     #expect(frames[1].width == 10)
     #expect(frames[2].x == 10)
     #expect(frames[2].width == 10)
+  }
+
+  @Test
+  func `test frames with spacing larger than bounds do not produce negative widths`() {
+    let bounds = Rectangle(origin: .zero, size: .init(width: 5, height: 20))
+    let layout = HStackLayout(spacing: 10)
+    let items: [any LayoutItem] = [Spacer(), Spacer()]
+    let frames = layout.frames(for: items, within: bounds)
+
+    #expect(frames[0].x == 0)
+    #expect(frames[0].width == 0)
+    #expect(frames[1].x == 10)
+    #expect(frames[1].width == 0)
   }
 
   @Test
