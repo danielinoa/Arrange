@@ -90,35 +90,33 @@ public struct HStackLayout: Sendable, Layout {
     let availableWidth = distributableWidth(from: proposal.width.finiteValue ?? .zero)
     var sharedAvailableWidth = availableWidth
 
-    // FIXME: Elasticity instead of scalability!
-
-    // Scalability in this context refers to the ability of an item to be resized over a larger range of values.
-    let group: [(index: Int, item: any LayoutItem, scalability: Double)] = pairs.map {
+    // Resizability is the difference between an item's minimum and maximum fitting width.
+    let group: [(index: Int, item: any LayoutItem, resizability: Double)] = pairs.map {
       index, item in
       let shrunkProposal = SizeProposal(width: .collapsed, height: proposal.height)
       let expandedProposal = SizeProposal(width: .fixed(availableWidth), height: proposal.height)
       let minimumWidth = item.sizeThatFits(shrunkProposal).width
       let maximumWidth = item.sizeThatFits(expandedProposal).width
-      let scalability = maximumWidth - minimumWidth
-      return (index, item, scalability)
+      let resizability = maximumWidth - minimumWidth
+      return (index, item, resizability)
     }
 
-    // Least scalable item first.
-    var scaleAscendingGroups = group.sorted {
-      if $0.scalability == $1.scalability {
+    // Least resizable item first.
+    var resizabilityAscendingGroups = group.sorted {
+      if $0.resizability == $1.resizability {
         return $0.index < $1.index
       }
-      return $0.scalability < $1.scalability
+      return $0.resizability < $1.resizability
     }
 
     // When calculating sizes all views start with an equal amount space within the "shared available space".
     // Any remaining space unused by a view is then returned to the "shared available space" for other views to use.
     // In order to ensure no space is wasted in the aforementioned step, the algorithm starts with the least
-    // scalable item and works itself towards the more scalable item.
-    while !scaleAscendingGroups.isEmpty {
+    // resizable item and works itself towards the more resizable item.
+    while !resizabilityAscendingGroups.isEmpty {
       // An equal amount of space for views yet to be added to the size-table.
-      let equalAllotmentWidth = sharedAvailableWidth / Double(scaleAscendingGroups.count)
-      let group = scaleAscendingGroups.removeFirst()
+      let equalAllotmentWidth = sharedAvailableWidth / Double(resizabilityAscendingGroups.count)
+      let group = resizabilityAscendingGroups.removeFirst()
       let itemProposal = SizeProposal(width: .fixed(equalAllotmentWidth), height: proposal.height)
       let fittingSize = group.item.sizeThatFits(itemProposal)
       sizeTable[group.index] = (fittingSize, group.item)
