@@ -101,6 +101,9 @@ public struct HStackLayout: Sendable, Layout {
       return (index, item, resizability)
     }
 
+    // Items are sized from least to most resizable. Rigid items are resolved first so they can
+    // claim the space they need before more adaptable items absorb the remainder.
+    // After each item is measured, any unused space is returned to the shared pool.
     // Least resizable item first.
     var resizabilityAscendingGroups = group.sorted {
       if $0.resizability == $1.resizability {
