@@ -95,6 +95,7 @@ public struct HStackLayout: Sendable, Layout {
 
     guard !items.isEmpty else { return (measurements: [], remainingWidth: availableWidth) }
     if items.count == 1 {
+      // A single item does not need resizability ranking or width redistribution.
       let item = items[0]
       let fittingSize = item.item.sizeThatFits(proposal)
       let remainingWidth = remainingSpace(afterConsuming: fittingSize.width, from: availableWidth)

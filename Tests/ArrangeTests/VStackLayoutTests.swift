@@ -176,6 +176,40 @@ final class VStackLayoutTests {
   }
 
   @Test
+  func `test size with fixed nan proposal preserves fixed nan semantics for multiple items`() {
+    struct ProposalAwareItem: LayoutItem {
+      let nonFiniteHeight: Double
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 20
+          case .unspecified: 10
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value) where value.isFinite: value
+          case .fixed: nonFiniteHeight
+          case .collapsed: .zero
+          case .expanded: 50
+          case .unspecified: 25
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let layout = VStackLayout(spacing: 5)
+    let items: [any LayoutItem] = [
+      ProposalAwareItem(nonFiniteHeight: 30),
+      ProposalAwareItem(nonFiniteHeight: 40),
+    ]
+    let proposal = SizeProposal(width: .fixed(12), height: .fixed(.nan))
+    let size = layout.size(fitting: items, within: proposal)
+    #expect(size == .init(width: 12, height: 75))
+  }
+
+  @Test
   func `test size with 1 fixed item`() {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {

@@ -95,6 +95,7 @@ public struct VStackLayout: Sendable, Layout {
 
     guard !items.isEmpty else { return (measurements: [], remainingHeight: availableHeight) }
     if items.count == 1 {
+      // A single item does not need resizability ranking or height redistribution.
       let item = items[0]
       let fittingSize = item.item.sizeThatFits(proposal)
       let remainingHeight = remainingSpace(afterConsuming: fittingSize.height, from: availableHeight)

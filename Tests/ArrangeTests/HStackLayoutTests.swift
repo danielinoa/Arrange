@@ -176,6 +176,40 @@ final class HStackLayoutTests {
   }
 
   @Test
+  func `test size with fixed infinity proposal preserves fixed infinity semantics for multiple items`() {
+    struct ProposalAwareItem: LayoutItem {
+      let nonFiniteWidth: Double
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value) where value.isFinite: value
+          case .fixed: nonFiniteWidth
+          case .collapsed: .zero
+          case .expanded: 50
+          case .unspecified: 25
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 20
+          case .unspecified: 10
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let layout = HStackLayout(spacing: 5)
+    let items: [any LayoutItem] = [
+      ProposalAwareItem(nonFiniteWidth: 30),
+      ProposalAwareItem(nonFiniteWidth: 40),
+    ]
+    let proposal = SizeProposal(width: .fixed(.infinity), height: .fixed(12))
+    let size = layout.size(fitting: items, within: proposal)
+    #expect(size == .init(width: 75, height: 12))
+  }
+
+  @Test
   func `test size with 1 fixed item`() {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
