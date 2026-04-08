@@ -37,10 +37,11 @@ import Testing
     #expect(DimensionProposal.fixed(-5).finiteValue == -5)
   }
 
-  @Test func `test finiteValue is nil for unbounded proposals`() {
+  @Test func `test finiteValue is nil for unbounded or non-finite fixed proposals`() {
     #expect(DimensionProposal.expanded.finiteValue == nil)
     #expect(DimensionProposal.unspecified.finiteValue == nil)
     #expect(DimensionProposal.fixed(.infinity).finiteValue == nil)
+    #expect(DimensionProposal.fixed(.nan).finiteValue == nil)
   }
 
   // MARK: - Equatable

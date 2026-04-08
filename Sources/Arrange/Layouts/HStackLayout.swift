@@ -5,11 +5,13 @@
 /// A layout that arranges its items along the horizontal axis.
 public struct HStackLayout: Sendable, Layout {
 
-  private typealias Priority = Int
-  private typealias ItemIndex = Int
-  private typealias SizedItem = (size: Size, item: any LayoutItem)
-  private typealias IndexedItem = (index: ItemIndex, item: any LayoutItem)
-  private typealias SizedItemsByIndex = [ItemIndex: SizedItem]
+  private struct IndexedItem {
+    let index: Int
+    let item: any LayoutItem
+  }
+
+  private typealias IndexedMeasuredSize = (index: Int, size: Size)
+  private typealias AllocationResult = (measurements: [IndexedMeasuredSize], remainingWidth: Double)
 
   /// The horizontal distance between adjacent items within the stack.
   public var spacing: Double
@@ -22,111 +24,127 @@ public struct HStackLayout: Sendable, Layout {
   }
 
   public func naturalSize(for items: [any LayoutItem]) -> Size {
-    let totalInteritemSpacing = totalInteritemSpacing(for: items)
-    let itemsWidth = items.map(\.intrinsicSize.width).reduce(.zero, +)
-    let totalWidth = itemsWidth + totalInteritemSpacing
+    let totalSpacing = totalInteritemSpacing(itemCount: items.count)
+    let totalWidth = items.map(\.intrinsicSize.width).reduce(.zero, +) + totalSpacing
     let maxHeight = items.map(\.intrinsicSize.height).max() ?? .zero
     return .init(width: totalWidth, height: maxHeight)
   }
 
   public func size(fitting items: [any LayoutItem], within proposal: SizeProposal) -> Size {
-    let totalInteritemSpacing = totalInteritemSpacing(for: items)
-    let sizes = sizes(for: items, within: proposal).map(\.size)
-    let width = totalInteritemSpacing + sizes.map(\.width).reduce(.zero, +)
-    let height = sizes.map(\.height).max() ?? .zero
+    let totalSpacing = totalInteritemSpacing(itemCount: items.count)
+    let measuredSizes = measuredSizes(for: items, within: proposal)
+    let width = measuredSizes.reduce(totalSpacing) { $0 + $1.width }
+    let height = measuredSizes.map(\.height).max() ?? .zero
     return .init(width: width, height: height)
   }
 
   public func frames(for items: [any LayoutItem], within bounds: Rectangle) -> [Rectangle] {
     var leadingOffset = bounds.leadingX
-    let itemSizePairs = sizes(for: items, within: .size(bounds.size))
-    let frames = itemSizePairs.map { pair in
+    let measuredSizes = measuredSizes(for: items, within: .size(bounds.size))
+    let frames = measuredSizes.map { size in
       let x = leadingOffset
-      let y = Self.topOffset(for: pair.size, aligned: alignment, within: bounds)
-      let frame = Rectangle(x: x, y: y, size: pair.size)
-      leadingOffset += pair.size.width + spacing
+      let y = Self.topOffset(for: size, aligned: alignment, within: bounds)
+      let frame = Rectangle(x: x, y: y, size: size)
+      leadingOffset += size.width + spacing
       return frame
     }
     return frames
   }
 
-  /// Returns the array of items with their corresponding ideal size, in the same order they were passed in.
-  /// - note: The size of any particular item is dependent on the specified bounding size and the item's own layout
-  /// priority relative to its neighboring items.
-  /// - note: The width-sharing path only runs when `proposal.width.finiteValue` exists. Otherwise the width proposal
-  ///         is treated as unbounded and each child is measured directly with the original proposal.
-  /// - note: Negative finite widths are clamped to zero before being used as distributable sibling space.
-  private func sizes(for items: [any LayoutItem], within proposal: SizeProposal) -> [SizedItem] {
+  // MARK: - Measurement
+
+  /// Returns the fitting sizes of the items, in input order.
+  ///
+  /// The width-sharing path only runs when `proposal.width.finiteValue` exists. Otherwise the width proposal
+  /// is treated as unbounded and each child is measured directly with the original proposal.
+  private func measuredSizes(for items: [any LayoutItem], within proposal: SizeProposal) -> [Size] {
     guard let availableWidth = proposal.width.finiteValue else {
-      return items.map { ($0.sizeThatFits(proposal), $0) }
+      return items.map { $0.sizeThatFits(proposal) }
     }
 
-    let pairs: [IndexedItem] = items.enumerated().map { ($0, $1) }
+    let indexedItems = items.enumerated().map { IndexedItem(index: $0.offset, item: $0.element) }
+    let totalSpacing = totalInteritemSpacing(itemCount: items.count)
     var remainingWidth = remainingSpace(
-      afterConsuming: totalInteritemSpacing(for: items),
+      afterConsuming: totalSpacing,
       from: distributableWidth(from: availableWidth)
     )
-    var sizeTable: SizedItemsByIndex = [:]
-    let priorityGroups: [Priority: [IndexedItem]] = Dictionary(grouping: pairs, by: \.item.priority)
+    var orderedSizes = Array<Size?>(repeating: nil, count: items.count)
+    let priorityGroups = Dictionary(grouping: indexedItems, by: \.item.priority)
+
+    // Higher-priority groups are resolved first so they can claim space before lower-priority siblings.
     for priority in priorityGroups.keys.sorted(by: >) {
       let group = priorityGroups[priority]!
-      let availableProposal = SizeProposal(width: .fixed(remainingWidth), height: proposal.height)
-      let (groupSizeTable, unusedWidth) = fittingSizes(for: group, within: availableProposal)
-      sizeTable.merge(groupSizeTable) { current, new in current }  // No duplicate values are expected.
-      remainingWidth = unusedWidth
+      let groupProposal = SizeProposal(width: .fixed(remainingWidth), height: proposal.height)
+      let allocation = fittingSizes(for: group, within: groupProposal)
+      for measurement in allocation.measurements {
+        orderedSizes[measurement.index] = measurement.size
+      }
+      remainingWidth = allocation.remainingWidth
     }
-    return
-      sizeTable
-      .sorted { $0.key < $1.key }  // ensures that items are in the order they were received.
-      .map { ($0.value.size, $0.value.item) }
+
+    precondition(orderedSizes.allSatisfy { $0 != nil })
+    return orderedSizes.map { $0! }
   }
 
+  // MARK: - Allocation
+
   private func fittingSizes(
-    for pairs: [IndexedItem], within proposal: SizeProposal
-  ) -> (sizeTable: SizedItemsByIndex, remainingWidth: Double) {
-    var sizeTable: SizedItemsByIndex = .init()
-
-    // The amount of width this priority group is allowed to divide among its remaining siblings.
+    for items: [IndexedItem], within proposal: SizeProposal
+  ) -> AllocationResult {
     let availableWidth = distributableWidth(from: proposal.width.finiteValue ?? .zero)
-    var sharedAvailableWidth = availableWidth
 
-    // Resizability is the difference between an item's minimum and maximum fitting width.
-    let group: [(index: Int, item: any LayoutItem, resizability: Double)] = pairs.map {
-      index, item in
-      let shrunkProposal = SizeProposal(width: .collapsed, height: proposal.height)
-      let expandedProposal = SizeProposal(width: .fixed(availableWidth), height: proposal.height)
-      let minimumWidth = item.sizeThatFits(shrunkProposal).width
-      let maximumWidth = item.sizeThatFits(expandedProposal).width
-      let resizability = maximumWidth - minimumWidth
-      return (index, item, resizability)
+    guard !items.isEmpty else { return (measurements: [], remainingWidth: availableWidth) }
+    if items.count == 1 {
+      let item = items[0]
+      let fittingSize = item.item.sizeThatFits(proposal)
+      let remainingWidth = remainingSpace(afterConsuming: fittingSize.width, from: availableWidth)
+      return (measurements: [(index: item.index, size: fittingSize)], remainingWidth: remainingWidth)
     }
+
+    var remainingWidth = availableWidth
 
     // Items are sized from least to most resizable. Rigid items are resolved first so they can
     // claim the space they need before more adaptable items absorb the remainder.
     // After each item is measured, any unused space is returned to the shared pool.
-    // Least resizable item first.
-    var resizabilityAscendingGroups = group.sorted {
-      if $0.resizability == $1.resizability {
-        return $0.index < $1.index
+    let rankedItems: [(indexedItem: IndexedItem, resizability: Double)] = items
+      .map { indexedItem in
+        (indexedItem, resizability(of: indexedItem.item, within: proposal))
       }
-      return $0.resizability < $1.resizability
+      .sorted {
+        if $0.resizability == $1.resizability {
+          return $0.indexedItem.index < $1.indexedItem.index
+        }
+        return $0.resizability < $1.resizability
+      }
+    var measurements: [IndexedMeasuredSize] = []
+
+    for (offset, rankedItem) in rankedItems.enumerated() {
+      let remainingItemCount = rankedItems.count - offset
+      let equalAllotmentWidth = remainingWidth / Double(remainingItemCount)
+      let itemProposal = SizeProposal(width: .fixed(equalAllotmentWidth), height: proposal.height)
+      let fittingSize = rankedItem.indexedItem.item.sizeThatFits(itemProposal)
+      measurements.append(
+        (index: rankedItem.indexedItem.index, size: fittingSize)
+      )
+      remainingWidth = remainingSpace(afterConsuming: fittingSize.width, from: remainingWidth)
     }
 
-    // When calculating sizes all views start with an equal amount space within the "shared available space".
-    // Any remaining space unused by a view is then returned to the "shared available space" for other views to use.
-    // In order to ensure no space is wasted in the aforementioned step, the algorithm starts with the least
-    // resizable item and works itself towards the more resizable item.
-    while !resizabilityAscendingGroups.isEmpty {
-      // An equal amount of space for views yet to be added to the size-table.
-      let equalAllotmentWidth = sharedAvailableWidth / Double(resizabilityAscendingGroups.count)
-      let group = resizabilityAscendingGroups.removeFirst()
-      let itemProposal = SizeProposal(width: .fixed(equalAllotmentWidth), height: proposal.height)
-      let fittingSize = group.item.sizeThatFits(itemProposal)
-      sizeTable[group.index] = (fittingSize, group.item)
-      sharedAvailableWidth = remainingSpace(afterConsuming: fittingSize.width, from: sharedAvailableWidth)
-    }
-    return (sizeTable, sharedAvailableWidth)
+    return (measurements: measurements, remainingWidth: remainingWidth)
   }
+
+  // MARK: - Resizability
+
+  // Resizability is the difference between an item's minimum and maximum fitting width.
+  private func resizability(of item: any LayoutItem, within proposal: SizeProposal) -> Double {
+    let availableWidth = distributableWidth(from: proposal.width.finiteValue ?? .zero)
+    let minimumProbe = SizeProposal(width: .collapsed, height: proposal.height)
+    let maximumProbe = SizeProposal(width: .fixed(availableWidth), height: proposal.height)
+    let minimumWidth = item.sizeThatFits(minimumProbe).width
+    let maximumWidth = item.sizeThatFits(maximumProbe).width
+    return maximumWidth - minimumWidth
+  }
+
+  // MARK: - Positioning
 
   private static func topOffset(
     for size: Size, aligned: VerticalAlignment, within bounds: Rectangle
@@ -140,8 +158,10 @@ public struct HStackLayout: Sendable, Layout {
     return bounds.topY + shift
   }
 
-  private func totalInteritemSpacing(for items: [any LayoutItem]) -> Double {
-    !items.isEmpty ? spacing * Double(items.count - 1) : .zero
+  // MARK: - Utilities
+
+  private func totalInteritemSpacing(itemCount: Int) -> Double {
+    itemCount > 0 ? spacing * Double(itemCount - 1) : .zero
   }
 
   /// Converts a finite proposed width into width that can actually be distributed among siblings.

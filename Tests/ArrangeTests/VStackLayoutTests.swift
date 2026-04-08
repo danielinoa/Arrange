@@ -118,6 +118,64 @@ final class VStackLayoutTests {
   }
 
   @Test
+  func `test size with fixed infinity proposal preserves fixed infinity semantics`() {
+    struct ProposalAwareItem: LayoutItem {
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 20
+          case .unspecified: 10
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value):
+            if value.isInfinite { 70 } else if value.isNaN { 35 } else { value }
+          case .collapsed: .zero
+          case .expanded: 50
+          case .unspecified: 25
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let proposal = SizeProposal(width: .fixed(12), height: .fixed(.infinity))
+    let layout = VStackLayout()
+    let size = layout.size(fitting: [ProposalAwareItem()], within: proposal)
+    #expect(size == .init(width: 12, height: 70))
+  }
+
+  @Test
+  func `test size with fixed nan proposal preserves fixed nan semantics`() {
+    struct ProposalAwareItem: LayoutItem {
+      var intrinsicSize: Size { .square(1) }
+
+      func sizeThatFits(_ proposal: SizeProposal) -> Size {
+        let width: Double = switch proposal.width {
+          case .fixed(let value): value
+          case .collapsed: .zero
+          case .expanded: 20
+          case .unspecified: 10
+        }
+        let height: Double = switch proposal.height {
+          case .fixed(let value):
+            if value.isInfinite { 70 } else if value.isNaN { 35 } else { value }
+          case .collapsed: .zero
+          case .expanded: 50
+          case .unspecified: 25
+        }
+        return .init(width: width, height: height)
+      }
+    }
+
+    let proposal = SizeProposal(width: .fixed(12), height: .fixed(.nan))
+    let layout = VStackLayout()
+    let size = layout.size(fitting: [ProposalAwareItem()], within: proposal)
+    #expect(size == .init(width: 12, height: 35))
+  }
+
+  @Test
   func `test size with 1 fixed item`() {
     struct FixedItem: LayoutItem {
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
@@ -317,7 +375,7 @@ final class VStackLayoutTests {
       func sizeThatFits(_ proposal: SizeProposal) -> Size { .init(width: 30, height: 30) }
     }
     struct FlexibleItem: LayoutItem {
-      var priority: Int { 1 }
+      var priority: LayoutPriority { 1 }
       func sizeThatFits(_ proposal: SizeProposal) -> Size {
         let width: Double = switch proposal.width {
           case .fixed(let value): value
